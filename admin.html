@@ -5,66 +5,254 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>商家管理后台</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #f1f5f9; padding: 16px; max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
-        h1 { font-size: 24px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
-        .sub { color: #64748b; font-size: 14px; margin-bottom: 20px; }
-        .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
-        .card h2 { font-size: 17px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-weight: 500; font-size: 14px; color: #334155; margin-bottom: 4px; }
-        .form-group input { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 15px; transition: 0.15s; }
-        .form-group input:focus { border-color: #3b82f6; outline: none; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .btn { border: none; padding: 10px 24px; border-radius: 40px; font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.15s; }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:active { transform: scale(0.95); }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:active { transform: scale(0.95); }
-        .btn-sm { padding: 6px 16px; font-size: 13px; }
-        .btn-outline { background: transparent; border: 2px solid #e2e8f0; }
-        .btn-success { background: #16a34a; color: white; }
-        .btn-success:active { transform: scale(0.95); }
-        .btn-ghost { background: transparent; color: #475569; border: 1px solid #e2e8f0; }
-        .btn-ghost:active { transform: scale(0.95); }
-        .btn-copy { background: #8b5cf6; color: white; }
-        .btn-copy:active { transform: scale(0.95); }
-        .btn-warning { background: #f59e0b; color: white; }
-        .btn-warning:active { transform: scale(0.95); }
-        .product-item { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
-        .product-item:last-child { border-bottom: none; }
-        .product-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 12px; background: #eef2f6; }
-        .product-item .info { flex: 1; }
-        .product-item .info .name { font-weight: 600; font-size: 15px; }
-        .product-item .info .price { color: #2563eb; font-weight: 600; font-size: 14px; }
-        .product-item .info .stock { font-size: 13px; color: #64748b; }
-        .product-item .info .stock.low { color: #ef4444; font-weight: 600; }
-        .product-item .info .stock.out { color: #ef4444; font-weight: 700; }
-        .product-item .actions { display: flex; gap: 6px; flex-wrap: wrap; }
-        .empty-state { text-align: center; color: #94a3b8; padding: 30px 0; }
-        .preview-img { margin-top: 8px; max-width: 120px; max-height: 120px; border-radius: 12px; display: none; border: 2px solid #e2e8f0; }
-        .preview-img.show { display: block; }
-        .switch-link { display: inline-block; margin-top: 12px; color: #3b82f6; text-decoration: none; font-weight: 500; }
-        .upload-area { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .upload-area input[type="file"] { flex: 1; padding: 8px; border: 2px dashed #e2e8f0; border-radius: 12px; cursor: pointer; }
-        .upload-area input[type="file"]:hover { border-color: #3b82f6; }
-        .tab-bar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
-        .tab-btn { padding: 8px 20px; border: none; border-radius: 30px; font-weight: 600; cursor: pointer; background: #e2e8f0; color: #64748b; transition: 0.15s; }
-        .tab-btn.active { background: #2563eb; color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        
-        /* ====== 订单样式 ====== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            background: #f1f5f9;
+            padding: 16px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sub {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-bottom: 20px;
+        }
+        .card h2 {
+            font-size: 17px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            color: #334155;
+            margin-bottom: 4px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: 0.15s;
+        }
+        .form-group input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+        .btn {
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:active {
+            transform: scale(0.95);
+        }
+        .btn-sm {
+            padding: 6px 16px;
+            font-size: 13px;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #e2e8f0;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .btn-success:active {
+            transform: scale(0.95);
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        .btn-ghost:active {
+            transform: scale(0.95);
+        }
+        .btn-copy {
+            background: #8b5cf6;
+            color: white;
+        }
+        .btn-copy:active {
+            transform: scale(0.95);
+        }
+        .btn-export {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-export:active {
+            transform: scale(0.95);
+        }
+        .product-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .product-item:last-child {
+            border-bottom: none;
+        }
+        .product-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 12px;
+            background: #eef2f6;
+        }
+        .product-item .info {
+            flex: 1;
+        }
+        .product-item .info .name {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .product-item .info .price {
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .product-item .info .stock {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .product-item .info .stock.low {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        .product-item .info .stock.out {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        .product-item .actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            padding: 30px 0;
+        }
+        .preview-img {
+            margin-top: 8px;
+            max-width: 120px;
+            max-height: 120px;
+            border-radius: 12px;
+            display: none;
+            border: 2px solid #e2e8f0;
+        }
+        .preview-img.show {
+            display: block;
+        }
+        .switch-link {
+            display: inline-block;
+            margin-top: 12px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .upload-area {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .upload-area input[type="file"] {
+            flex: 1;
+            padding: 8px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+        .upload-area input[type="file"]:hover {
+            border-color: #3b82f6;
+        }
+        .tab-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            background: #e2e8f0;
+            color: #64748b;
+            transition: 0.15s;
+        }
+        .tab-btn.active {
+            background: #2563eb;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
         .order-item {
             border: 1px solid #f1f5f9;
             border-radius: 12px;
             margin-bottom: 12px;
             overflow: hidden;
-            transition: 0.15s;
         }
-        .order-item:last-child { margin-bottom: 0; }
-        
+        .order-item:last-child {
+            margin-bottom: 0;
+        }
+
         .order-header {
             display: flex;
             justify-content: space-between;
@@ -72,13 +260,16 @@
             padding: 14px 16px;
             cursor: pointer;
             background: white;
-            transition: 0.15s;
             flex-wrap: wrap;
             gap: 8px;
         }
-        .order-header:hover { background: #f8fafc; }
-        .order-header:active { background: #f1f5f9; }
-        .order-header .order-main { flex: 1; min-width: 120px; }
+        .order-header:hover {
+            background: #f8fafc;
+        }
+        .order-header .order-main {
+            flex: 1;
+            min-width: 120px;
+        }
         .order-header .order-nickname {
             background: #dbeafe;
             padding: 2px 12px;
@@ -118,17 +309,24 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .order-status.pending { background: #fef3c7; color: #d97706; }
-        .order-status.done { background: #d1fae5; color: #065f46; }
+        .order-status.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .order-status.done {
+            background: #d1fae5;
+            color: #065f46;
+        }
         .order-toggle-icon {
             color: #94a3b8;
             font-size: 18px;
             transition: 0.2s;
             user-select: none;
         }
-        .order-toggle-icon.open { transform: rotate(180deg); }
-        
-        /* ====== 订单详情 ====== */
+        .order-toggle-icon.open {
+            transform: rotate(180deg);
+        }
+
         .order-details {
             max-height: 0;
             overflow: hidden;
@@ -147,7 +345,9 @@
             border-bottom: 1px dashed #e9edf2;
             font-size: 14px;
         }
-        .order-detail-item:last-child { border-bottom: none; }
+        .order-detail-item:last-child {
+            border-bottom: none;
+        }
         .order-detail-item .qty {
             background: #eef2f6;
             padding: 0 10px;
@@ -169,7 +369,9 @@
             border-top: 2px solid #e2e8f0;
             color: #0f172a;
         }
-        .order-detail-total .amount { color: #2563eb; }
+        .order-detail-total .amount {
+            color: #2563eb;
+        }
         .order-actions-detail {
             display: flex;
             gap: 8px;
@@ -190,13 +392,15 @@
             border-radius: 40px;
             font-weight: 600;
             font-size: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
             opacity: 0;
             transition: opacity 0.3s ease;
             z-index: 999;
             pointer-events: none;
         }
-        .copy-toast.show { opacity: 1; }
+        .copy-toast.show {
+            opacity: 1;
+        }
 
         .badge-new {
             background: #ef4444;
@@ -231,26 +435,38 @@
             background: #fef3c7;
             color: #d97706;
         }
-        .stock-input-group {
+        .sync-status {
+            font-size: 12px;
+            color: #16a34a;
+            font-weight: 500;
+        }
+        .sync-status.loading {
+            color: #f59e0b;
+        }
+        .sync-status.error {
+            color: #ef4444;
+        }
+        .export-area {
             display: flex;
-            align-items: center;
-            gap: 6px;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            padding-top: 14px;
+            border-top: 1px solid #e9edf2;
         }
-        .stock-input-group input {
-            width: 70px;
-            padding: 8px 10px;
+        .export-area textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
             border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 14px;
-            text-align: center;
+            border-radius: 12px;
+            font-size: 13px;
+            font-family: monospace;
+            resize: vertical;
         }
-        .stock-input-group input:focus {
+        .export-area textarea:focus {
             border-color: #3b82f6;
             outline: none;
-        }
-        .stock-input-group .stock-label {
-            font-size: 13px;
-            color: #64748b;
         }
     </style>
 </head>
@@ -262,9 +478,11 @@
         🛠️ 商家中心
         <span style="font-size:14px; font-weight:400; color:#64748b;">管理商品 & 订单</span>
     </h1>
-    <div class="sub">📦 设置库存 · 客户点单自动检查</div>
+    <div class="sub">
+        📦 数据保存在本地浏览器
+        <span class="sync-status" id="syncStatus">● 已连接</span>
+    </div>
 
-    <!-- Tab 切换 -->
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('products')">📦 商品管理</button>
         <button class="tab-btn" onclick="switchTab('orders')">
@@ -274,7 +492,6 @@
         </button>
     </div>
 
-    <!-- ====== 商品管理 Tab ====== -->
     <div id="tab-products" class="tab-content active">
         <div class="card">
             <h2 id="formTitle">➕ 添加商品</h2>
@@ -290,16 +507,13 @@
                         <input type="number" id="productPrice" placeholder="18.00" step="0.01" required>
                     </div>
                     <div class="form-group">
-                        <label>📦 库存数量 *</label>
+                        <label>📦 库存 *</label>
                         <input type="number" id="productStock" placeholder="99" min="0" required>
                     </div>
                     <div class="form-group">
-                        <label>📸 商品图片</label>
-                        <div class="upload-area" style="flex-direction:column; gap:6px;">
-                            <input type="file" id="imageFile" accept="image/*" capture="environment" style="width:100%;">
-                            <span style="color:#94a3b8; font-size:12px;">或输入网址</span>
-                            <input type="url" id="productImage" placeholder="图片网址" style="width:100%;">
-                        </div>
+                        <label>📸 图片</label>
+                        <input type="url" id="productImage" placeholder="图片网址">
+                        <input type="file" id="imageFile" accept="image/*" style="margin-top:6px; font-size:12px;">
                         <img id="imagePreview" class="preview-img" alt="预览">
                     </div>
                 </div>
@@ -311,10 +525,16 @@
         <div class="card">
             <h2>📋 商品列表 (<span id="productCount">0</span>)</h2>
             <div id="productList"></div>
+            <div class="export-area">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="btn btn-export" onclick="exportData()">📤 导出数据 (复制 JSON)</button>
+                    <button class="btn btn-outline" onclick="importData()">📥 导入数据 (粘贴 JSON)</button>
+                </div>
+                <textarea id="jsonExportArea" placeholder="导出的 JSON 数据会显示在这里..."></textarea>
+            </div>
         </div>
     </div>
 
-    <!-- ====== 订单记录 Tab ====== -->
     <div id="tab-orders" class="tab-content">
         <div class="card">
             <h2>📋 历史订单 <span id="orderTotalCount" style="font-size:14px; font-weight:400; color:#94a3b8;"></span></h2>
@@ -325,9 +545,9 @@
     <a href="index.html" class="switch-link">← 返回点单页面</a>
 
     <script>
-        // ============================================================
-        //  DATA
-        // ============================================================
+        // ================================================================
+        //  数据管理
+        // ================================================================
         const STORAGE_KEY = 'menu_items';
         const ORDERS_KEY = 'order_history';
 
@@ -364,9 +584,9 @@
         let products = loadProducts();
         let orders = loadOrders();
 
-        // ============================================================
-        //  FORMAT
-        // ============================================================
+        // ================================================================
+        //  工具函数
+        // ================================================================
         function formatPrice(amount) {
             return 'RM ' + amount.toFixed(2);
         }
@@ -385,23 +605,20 @@
             return '';
         }
 
-        // ============================================================
-        //  TAB SWITCH
-        // ============================================================
+        // ================================================================
+        //  Tab 切换
+        // ================================================================
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
             document.querySelector(`.tab-btn[onclick="switchTab('${tab}')"]`).classList.add('active');
-            if (tab === 'orders') {
-                renderOrders();
-                document.getElementById('orderBadge').style.display = 'none';
-            }
+            if (tab === 'orders') renderOrders();
         }
 
-        // ============================================================
-        //  IMAGE HANDLER
-        // ============================================================
+        // ================================================================
+        //  图片处理
+        // ================================================================
         function handleImageFile(file) {
             if (!file) return;
             const reader = new FileReader();
@@ -420,9 +637,9 @@
             }
         });
 
-        // ============================================================
-        //  PRODUCT MANAGEMENT
-        // ============================================================
+        // ================================================================
+        //  商品管理
+        // ================================================================
         function renderProducts() {
             const container = document.getElementById('productList');
             const count = document.getElementById('productCount');
@@ -433,31 +650,23 @@
                 return;
             }
 
-            container.innerHTML = products.map(p => `
-                <div class="product-item">
-                    <img src="${p.img || 'https://placehold.co/300x300/e2e8f0/64748b?text=?'}" alt="${p.name}" onerror="this.src='https://placehold.co/300x300/e2e8f0/64748b?text=?'">
-                    <div class="info">
-                        <div class="name">${p.name}</div>
-                        <div class="price">${formatPrice(p.price)}</div>
-                        <div class="stock ${getStockClass(p.stock)}">${getStockText(p.stock)}</div>
+            container.innerHTML = products.map(p => {
+                const stock = p.stock !== undefined ? p.stock : Infinity;
+                return `
+                    <div class="product-item">
+                        <img src="${p.img || 'https://placehold.co/300x300/e2e8f0/64748b?text=?'}" alt="${p.name}" onerror="this.src='https://placehold.co/300x300/e2e8f0/64748b?text=?'">
+                        <div class="info">
+                            <div class="name">${p.name}</div>
+                            <div class="price">${formatPrice(p.price)}</div>
+                            <div class="stock ${getStockClass(stock)}">${getStockText(stock)}</div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-outline" onclick="editProduct(${p.id})">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
+                        </div>
                     </div>
-                    <div class="actions">
-                        <button class="btn btn-sm btn-outline" onclick="editProduct(${p.id})">✏️</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct(${p.id})">🗑️</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ============================================================
-        //  快速更新库存（在商品列表里直接修改）
-        // ============================================================
-        function updateStock(id, newStock) {
-            const product = products.find(p => p.id === id);
-            if (!product) return;
-            product.stock = Math.max(0, parseInt(newStock) || 0);
-            saveProducts(products);
-            renderProducts();
+                `;
+            }).join('');
         }
 
         function handleSubmit(e) {
@@ -542,72 +751,59 @@
         document.getElementById('cancelEditBtn').addEventListener('click', resetForm);
         document.getElementById('productForm').addEventListener('submit', handleSubmit);
 
-        // ============================================================
-        //  COPY TO CLIPBOARD
-        // ============================================================
-        function copyOrderItems(index) {
-            orders = loadOrders();
-            const order = orders[index];
-            if (!order || !order.items || order.items.length === 0) {
-                showToast('❌ 没有商品可复制');
+        // ================================================================
+        //  导出数据（复制 JSON）
+        // ================================================================
+        function exportData() {
+            const data = {
+                products: products
+            };
+            const json = JSON.stringify(data, null, 2);
+
+            // 显示在文本框
+            document.getElementById('jsonExportArea').value = json;
+
+            // 复制到剪贴板
+            navigator.clipboard.writeText(json).then(() => {
+                showToast('✅ 数据已复制！去 GitHub 编辑 data.json 粘贴替换。');
+            }).catch(() => {
+                // 如果复制失败，选中文本框内容让用户手动复制
+                document.getElementById('jsonExportArea').select();
+                showToast('📋 请手动复制文本框中的内容');
+            });
+        }
+
+        // ================================================================
+        //  导入数据（从 JSON 恢复）
+        // ================================================================
+        function importData() {
+            const text = document.getElementById('jsonExportArea').value.trim();
+            if (!text) {
+                alert('请先在文本框里粘贴 JSON 数据');
                 return;
             }
 
-            let text = `📋 订单 #${index + 1}\n`;
-            text += `👤 ${order.nickname || '匿名'}\n`;
-            text += `━━━━━━━━━━━━━━━━━━━\n`;
-            order.items.forEach(item => {
-                text += `  ${item.name}  ×${item.qty}\n`;
-            });
-            text += `━━━━━━━━━━━━━━━━━━━\n`;
-            text += `📦 共 ${order.items.reduce((sum, i) => sum + i.qty, 0)} 件商品`;
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('✅ 已复制商品清单！');
-                }).catch(() => {
-                    fallbackCopy(text);
-                });
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            textarea.style.top = '-9999px';
-            document.body.appendChild(textarea);
-            textarea.select();
             try {
-                document.execCommand('copy');
-                showToast('✅ 已复制商品清单！');
-            } catch (e) {
-                showToast('❌ 复制失败，请手动复制');
+                const data = JSON.parse(text);
+                if (!data.products || !Array.isArray(data.products)) {
+                    alert('❌ 无效的数据格式，请检查 JSON');
+                    return;
+                }
+
+                if (!confirm(`将导入 ${data.products.length} 个商品，当前数据会被覆盖。继续吗？`)) return;
+
+                products = data.products;
+                saveProducts(products);
+                renderProducts();
+                showToast('✅ 数据导入成功！');
+            } catch (err) {
+                alert('❌ JSON 解析失败: ' + err.message);
             }
-            document.body.removeChild(textarea);
         }
 
-        // ============================================================
-        //  TOAST
-        // ============================================================
-        let toastTimeout = null;
-
-        function showToast(message) {
-            const toast = document.getElementById('copyToast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
-        }
-
-        // ============================================================
-        //  ORDER MANAGEMENT
-        // ============================================================
+        // ================================================================
+        //  订单管理
+        // ================================================================
         function renderOrders() {
             const container = document.getElementById('orderList');
             orders = loadOrders();
@@ -679,7 +875,7 @@
         function toggleOrder(headerEl, index) {
             const details = document.getElementById(`orderDetails-${index}`);
             const icon = headerEl.querySelector('.order-toggle-icon');
-            
+
             if (details.classList.contains('open')) {
                 details.classList.remove('open');
                 icon.classList.remove('open');
@@ -691,7 +887,7 @@
             }
         }
 
-        window.markOrderDone = function(index) {
+        function markOrderDone(index) {
             orders = loadOrders();
             if (orders[index]) {
                 orders[index].status = 'done';
@@ -699,77 +895,89 @@
                 renderOrders();
                 showToast('✅ 已标记为完成');
             }
-        };
+        }
 
-        window.deleteOrder = function(index) {
+        function deleteOrder(index) {
             if (!confirm('确定要删除这个订单吗？')) return;
             orders = loadOrders();
             orders.splice(index, 1);
             saveOrders(orders);
             renderOrders();
             showToast('🗑️ 已删除订单');
-        };
+        }
 
-        // ============================================================
-        //  接收新订单（自动扣减库存）
-        // ============================================================
-        window.receiveOrder = function(orderData) {
+        // ================================================================
+        //  复制订单清单
+        // ================================================================
+        function copyOrderItems(index) {
             orders = loadOrders();
-            
-            // 扣减库存
-            let stockErrors = [];
-            orderData.items.forEach(item => {
-                const product = products.find(p => p.id === item.id);
-                if (product) {
-                    const currentStock = product.stock !== undefined ? product.stock : 999;
-                    if (currentStock < item.qty) {
-                        stockErrors.push(`${product.name}（需要 ${item.qty}，剩余 ${currentStock}）`);
-                    } else {
-                        product.stock = Math.max(0, currentStock - item.qty);
-                    }
-                }
-            });
-
-            // 如果有库存不足，阻止下单并回滚
-            if (stockErrors.length > 0) {
-                // 恢复库存（因为上面的修改已经改了，需要重新加载）
-                products = loadProducts();
-                alert(`❌ 库存不足！\n\n以下商品库存不够：\n${stockErrors.join('\n')}\n\n请修改订单数量。`);
-                return false;
+            const order = orders[index];
+            if (!order || !order.items || order.items.length === 0) {
+                showToast('❌ 没有商品可复制');
+                return;
             }
 
-            // 保存更新后的库存
-            saveProducts(products);
-
-            // 保存订单
-            orders.push({
-                nickname: orderData.nickname || '匿名',
-                items: orderData.items,
-                total: orderData.total,
-                time: orderData.time || new Date().toLocaleString(),
-                status: 'pending'
+            let text = `📋 订单 #${index + 1}\n`;
+            text += `👤 ${order.nickname || '匿名'}\n`;
+            text += `━━━━━━━━━━━━━━━━━━━\n`;
+            order.items.forEach(item => {
+                text += `  ${item.name}  ×${item.qty}\n`;
             });
-            saveOrders(orders);
+            text += `━━━━━━━━━━━━━━━━━━━\n`;
+            text += `📦 共 ${order.items.reduce((sum, i) => sum + i.qty, 0)} 件商品`;
 
-            document.getElementById('orderBadge').style.display = 'inline-block';
-            document.getElementById('pendingCount').textContent = orders.filter(o => o.status !== 'done').length;
-            if (document.getElementById('tab-orders').classList.contains('active')) {
-                renderOrders();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ 已复制商品清单！');
+                }).catch(() => {
+                    fallbackCopy(text);
+                });
+            } else {
+                fallbackCopy(text);
             }
-            // 更新商品列表（库存变化）
-            renderProducts();
-            showToast('🆕 收到新订单！库存已自动更新');
-            return true;
-        };
+        }
 
-        // ============================================================
-        //  INIT
-        // ============================================================
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            textarea.style.top = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('✅ 已复制商品清单！');
+            } catch (e) {
+                showToast('❌ 复制失败，请手动复制');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ================================================================
+        //  Toast
+        // ================================================================
+        let toastTimeout = null;
+
+        function showToast(message) {
+            const toast = document.getElementById('copyToast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // ================================================================
+        //  初始化
+        // ================================================================
         renderProducts();
         renderOrders();
         console.log('✅ 商家后台加载成功！');
         console.log('📦 商品数:', products.length);
         console.log('📋 订单数:', orders.length);
+        console.log('💡 提示: 添加商品后点击"导出数据"复制 JSON 到 data.json');
     </script>
 </body>
 </html>
