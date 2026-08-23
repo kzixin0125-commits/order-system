@@ -76,11 +76,23 @@
 
     <div class="header">
         <h1>🧾 点单台 <span>· 点击加购</span></h1>
-        <div class="lang-toggle">
-            <button class="active" id="langZh">中文</button>
-            <button id="langEn">English</button>
-        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+    <button id="refreshBtn" style="
+        border: none;
+        background: #16a34a;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(22,163,74,0.3);
+    ">🔄 刷新</button>
+    <div class="lang-toggle">
+        <button class="active" id="langZh">中文</button>
+        <button id="langEn">English</button>
     </div>
+</div>
     <div class="sub">
         选择商品，提交订单
         <span class="sync-status" id="syncStatus">● 已连接</span>
