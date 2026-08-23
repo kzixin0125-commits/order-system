@@ -1,0 +1,18 @@
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "美式咖啡",
+            "price": 18,
+            "stock": 10,
+            "img": "https://placehold.co/300x300/3b82f6/white?text=☕"
+        },
+        {
+            "id": 2,
+            "name": "拿铁",
+            "price": 22,
+            "stock": 8,
+            "img": "https://placehold.co/300x300/8b5cf6/white?text=☕"
+        }
+    ]
+}
