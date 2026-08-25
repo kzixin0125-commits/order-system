@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>点单</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, sans-serif;
+        }
+        body {
+            background: #f4f6fa;
+            padding: 16px;
+            padding-bottom: 100px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #1e293b;
+        }
+        .header h1 span {
+            font-size: 14px;
+            font-weight: 400;
+            color: #64748b;
+        }
+        .status {
+            font-size: 12px;
+            color: #16a34a;
+            font-weight: 500;
+        }
+        .status.loading {
+            color: #f59e0b;
+        }
+        .status.error {
+            color: #ef4444;
+        }
+        .nickname-area {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        .nickname-area label {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1e293b;
+        }
+        .nickname-area input {
+            flex: 1;
+            padding: 8px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 30px;
+            font-size: 15px;
+            min-width: 120px;
+        }
+        .nickname-area input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+        .nickname-area .hint {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            /* 从150改成180，更大 */
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px 12px;
+            /* 稍微增加内边距 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            border: 2px solid transparent;
+            text-align: center;
+            position: relative;
+            transition: 0.1s;
+        }
+        .card:active {
+            transform: scale(0.96);
+            border-color: #3b82f6;
+        }
+        .card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            border-radius: 16px;
+            background: #eef2f6;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .card .name {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 16px;
+        }
+        .card .price {
+            color: #2563eb;
+            font-weight: 700;
+            font-size: 17px;
+        }
+        .card .stock-info {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        .card .stock-info.low {
+            color: #ef4444;
+            font-weight: 600;
+        }
+        .card .stock-info.out {
+            color: #ef4444;
+            font-weight: 700;
+        }
+        .card.sold-out {
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-color: #ef4444;
+        }
+        .badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 30px;
+            padding: 0 10px;
+            line-height: 22px;
+            margin-top: 4px;
+        }
+        .sold-out-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 30px;
+        }
+        .cart-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px 20px;
+            padding-bottom: max(16px, env(safe-area-inset-bottom));
+            box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.08);
+            border-radius: 30px 30px 0 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(6px);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(0, 0, 0, 0.03);
+        }
+        .cart-info {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .cart-info .total-items {
+            background: #eef2f6;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .cart-info .total-price {
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .cart-info .total-price span {
+            font-size: 16px;
+            font-weight: 400;
+            color: #64748b;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 16px;
+            background: #eef2f6;
+            color: #1e293b;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+        }
+        .btn-primary:active {
+            background: #1d4ed8;
+        }
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        .btn-danger:active {
+            background: #dc2626;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+            box-shadow: 0 6px 14px rgba(22, 163, 74, 0.25);
+        }
+        .btn-success:active {
+            background: #15803d;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: #475569;
+        }
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 13px;
+            min-width: 30px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            max-width: 420px;
+            width: 100%;
+            padding: 28px 24px;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+            animation: fadeUp 0.2s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-box h2 {
+            font-size: 22px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-box .sub {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .modal-box .nickname-display {
+            font-size: 13px;
+            color: #3b82f6;
+            margin-bottom: 8px;
+        }
+        .modal-box .order-list {
+            margin: 16px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 1px solid #e9edf2;
+            border-bottom: 1px solid #e9edf2;
+            padding: 8px 0;
+        }
+        .order-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #edf0f5;
+            font-size: 15px;
+            gap: 8px;
+        }
+        .order-row:last-child {
+            border-bottom: none;
+        }
+        .order-row .info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .order-row .info .name {
+            font-weight: 600;
+            min-width: 50px;
+        }
+        .order-row .info .qty {
+            background: #eef2f6;
+            padding: 0 10px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 13px;
+            min-width: 24px;
+            text-align: center;
+        }
+        .order-row .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .order-row .qty-controls button {
+            background: #eef2f6;
+            border: none;
+            border-radius: 30px;
+            width: 28px;
+            height: 28px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .order-row .qty-controls button:active {
+            transform: scale(0.9);
+        }
+        .order-row .subtotal {
+            font-weight: 500;
+            color: #1e293b;
+            min-width: 60px;
+            text-align: right;
+        }
+        .order-row .delete-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .order-row .delete-btn:active {
+            transform: scale(0.8);
+        }
+        .modal-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 20px;
+            margin: 16px 0 12px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+        .empty-state {
+            text-align: center;
+            color: #94a3b8;
+            padding: 30px 0;
+        }
+        .empty-state p:first-child {
+            font-size: 18px;
+        }
+        .empty-state p:last-child {
+            font-size: 14px;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🧾 点单台 <span>· 点击加购</span></h1>
+        <span class="status" id="status">● 已连接</span>
+    </div>
+
+    <div class="nickname-area">
+        <label>👤 昵称</label>
+        <input type="text" id="nicknameInput" placeholder="输入你的名字" maxlength="20">
+        <span class="hint">(商家识别你)</span>
+    </div>
+
+    <div class="grid" id="menuGrid">
+        <div class="empty-state"><p>⏳ 加载中 <span class="loading-spinner"></span></p></div>
+    </div>
+
+    <div class="cart-panel">
+        <div class="cart-info">
+            <span class="total-items" id="totalItems">0 件</span>
+            <span class="total-price" id="totalPrice">RM0 <span>总计</span></span>
+        </div>
+        <div class="actions">
+            <button class="btn" id="clearCartBtn">🗑️</button>
+            <button class="btn btn-primary" id="checkoutBtn">📦 结单</button>
+        </div>
+    </div>
+
+    <div class="modal" id="orderModal">
+        <div class="modal-box">
+            <h2>📋 确认订单</h2>
+            <p class="sub" id="modalSub">请核对以下商品</p>
+            <div class="nickname-display" id="modalNickname">👤 昵称：未设置</div>
+            <div class="order-list" id="orderList"></div>
+            <div class="modal-total">
+                <span>合计</span>
+                <span id="modalTotalPrice">RM0</span>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" id="closeModalBtn">修改</button>
+                <button class="btn btn-success" id="confirmOrderBtn">✅ 确认下单</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================================================================
+        //  🔥 SUPABASE 配置（和 admin.html 完全一样）
+        // ================================================================
+        const SB_URL = 'https://tvqecfgrupxworfmrpgp.supabase.co';
+        const SB_KEY = 'sb_publishable_LXj2mPcP2N3vPFCN1dRKUw_CA0HhWNK';
+
+        console.log('🚀 点单页面初始化...');
+        const sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+        console.log('✅ Supabase 客户端已创建');
+
+        // ================================================================
+        //  昵称
+        // ================================================================
+        const nicknameInput = document.getElementById('nicknameInput');
+        const saved = localStorage.getItem('user_nickname');
+        if (saved) nicknameInput.value = saved;
+        nicknameInput.addEventListener('change', function() {
+            const val = this.value.trim();
+            if (val) localStorage.setItem('user_nickname', val);
+            else localStorage.removeItem('user_nickname');
+        });
+
+        function getNickname() {
+            return nicknameInput.value.trim() || '顾客';
+        }
+
+        // ================================================================
+        //  状态
+        // ================================================================
+        let menu = [];
+        let cart = {};
+        let pendingOrder = null;
+
+        const menuGrid = document.getElementById('menuGrid');
+        const totalItemsEl = document.getElementById('totalItems');
+        const totalPriceEl = document.getElementById('totalPrice');
+        const orderModal = document.getElementById('orderModal');
+        const orderListEl = document.getElementById('orderList');
+        const modalTotalPrice = document.getElementById('modalTotalPrice');
+        const modalNickname = document.getElementById('modalNickname');
+        const statusEl = document.getElementById('status');
+
+        function formatPrice(amount) {
+            return 'RM ' + Number(amount).toFixed(2);
+        }
+
+        function setStatus(text, type) {
+            statusEl.textContent = text;
+            statusEl.className = 'status' + (type ? ' ' + type : '');
+        }
+
+        // ================================================================
+        //  加载商品
+        // ================================================================
+        async function loadProducts() {
+            setStatus('◐ 同步中...', 'loading');
+            try {
+                const { data, error } = await sbClient
+                    .from('products')
+                    .select('*')
+                    .order('id', { ascending: true });
+
+                if (error) throw error;
+
+                menu = data || [];
+                renderMenu();
+                updateCart();
+                setStatus('● 已连接', '');
+                console.log('📦 商品已加载，共', menu.length, '件');
+            } catch (err) {
+                console.error('❌ 加载失败:', err);
+                setStatus('⚠️ 连接失败', 'error');
+                menu = [];
+                renderMenu();
+            }
+        }
+
+        // ================================================================
+        //  渲染商品
+        // ================================================================
+        function renderMenu() {
+            menuGrid.innerHTML = '';
+            if (menu.length === 0) {
+                menuGrid.innerHTML = `
+                    <div class="empty-state">
+                        <p>📭 暂无商品</p>
+                        <p>请联系商家添加</p>
+                    </div>
+                `;
+                return;
+            }
+
+            menu.forEach(item => {
+                const stock = item.stock || 0;
+                const soldOut = stock <= 0;
+                const low = stock > 0 && stock <= 3;
+
+                const card = document.createElement('div');
+                card.className = `card${soldOut ? ' sold-out' : ''}`;
+                card.innerHTML = `
+                    <img src="${item.img || 'https://placehold.co/300x300/e2e8f0/64748b?text=?'}" 
+                         onerror="this.src='https://placehold.co/300x300/e2e8f0/64748b?text=?'">
+                    <div class="name">${item.name}</div>
+                    <div class="price">${formatPrice(item.price)}</div>
+                    ${low ? `<div class="stock-info low">⚠️ 仅剩 ${stock} 件</div>` : ''}
+                    ${soldOut ? `<div class="stock-info out">❌ 已售罄</div>` : ''}
+                    <div class="badge" id="badge-${item.id}" style="display:none;">0</div>
+                    ${soldOut ? '<div class="sold-out-badge">售罄</div>' : ''}
+                `;
+
+                if (!soldOut) {
+                    card.addEventListener('click', () => addToCart(item.id));
+                }
+
+                menuGrid.appendChild(card);
+            });
+        }
+
+        // ================================================================
+        //  购物车
+        // ================================================================
+        function addToCart(id) {
+            const item = menu.find(p => p.id === id);
+            if (!item) return;
+            const current = cart[id] || 0;
+            if (item.stock <= current) {
+                alert(`❌ ${item.name} 只剩 ${item.stock} 件`);
+                return;
+            }
+            cart[id] = (cart[id] || 0) + 1;
+            updateCart();
+        }
+
+        function clearCart() {
+            if (Object.keys(cart).length > 0 && confirm('清空购物车？')) {
+                cart = {};
+                updateCart();
+            }
+        }
+
+        function updateCart() {
+            let qty = 0,
+                total = 0;
+            Object.keys(cart).forEach(id => {
+                const count = cart[id];
+                const item = menu.find(p => p.id === Number(id));
+                if (item) {
+                    qty += count;
+                    total += item.price * count;
+                }
+            });
+
+            totalItemsEl.textContent = qty + ' 件';
+            totalPriceEl.innerHTML = formatPrice(total) + ' <span>总计</span>';
+
+            menu.forEach(item => {
+                const badge = document.getElementById(`badge-${item.id}`);
+                if (badge) {
+                    const count = cart[item.id] || 0;
+                    badge.style.display = count > 0 ? 'inline-block' : 'none';
+                    badge.textContent = count;
+                }
+            });
+        }
+
+        // ================================================================
+        //  打开订单弹窗
+        // ================================================================
+        function openOrderModal() {
+            const items = Object.keys(cart);
+            if (items.length === 0) {
+                alert('🛒 购物车是空的');
+                return;
+            }
+
+            const nickname = getNickname();
+            if (!nicknameInput.value.trim()) {
+                alert('👤 请先输入你的昵称');
+                nicknameInput.focus();
+                return;
+            }
+
+            // 检查库存
+            let errors = [];
+            items.forEach(id => {
+                const count = cart[id];
+                const item = menu.find(p => p.id === Number(id));
+                if (item && item.stock < count) {
+                    errors.push(`${item.name}（需要 ${count}，剩 ${item.stock}）`);
+                }
+            });
+
+            if (errors.length > 0) {
+                alert(`❌ 库存不足！\n\n${errors.join('\n')}`);
+                return;
+            }
+
+            // 构建订单数据
+            let orderItems = [];
+            let total = 0;
+            items.forEach(id => {
+                const count = cart[id];
+                const item = menu.find(p => p.id === Number(id));
+                if (item) {
+                    const subtotal = item.price * count;
+                    total += subtotal;
+                    orderItems.push({ id: item.id, name: item.name, price: item.price, qty: count });
+                }
+            });
+
+            pendingOrder = {
+                nickname: nickname,
+                items: orderItems,
+                total: total
+            };
+
+            renderOrderModal();
+            orderModal.classList.add('active');
+        }
+
+        // ================================================================
+        //  渲染订单弹窗（支持修改数量 + 删除）
+        // ================================================================
+        function renderOrderModal() {
+            if (!pendingOrder) return;
+
+            let html = '';
+            pendingOrder.items.forEach((item, index) => {
+                const subtotal = item.price * item.qty;
+                html += `
+                    <div class="order-row" data-index="${index}">
+                        <div class="info">
+                            <span class="name">${item.name}</span>
+                            <div class="qty-controls">
+                                <button onclick="changeQty(${index}, -1)">−</button>
+                                <span class="qty">${item.qty}</span>
+                                <button onclick="changeQty(${index}, 1)">+</button>
+                            </div>
+                        </div>
+                        <span class="subtotal">${formatPrice(subtotal)}</span>
+                        <button class="delete-btn" onclick="deleteOrderItem(${index})">✕</button>
+                    </div>
+                `;
+            });
+
+            orderListEl.innerHTML = html;
+            modalTotalPrice.textContent = formatPrice(pendingOrder.total);
+            modalNickname.textContent = `👤 昵称：${pendingOrder.nickname}`;
+        }
+
+        // ================================================================
+        //  修改单个商品的数量（加减）
+        // ================================================================
+        function changeQty(index, delta) {
+            if (!pendingOrder) return;
+
+            const item = pendingOrder.items[index];
+            if (!item) return;
+
+            const newQty = item.qty + delta;
+            if (newQty <= 0) {
+                // 如果数量变成0，直接删除这个商品
+                deleteOrderItem(index);
+                return;
+            }
+
+            // 检查库存
+            const product = menu.find(p => p.id === item.id);
+            if (product && product.stock < newQty) {
+                alert(`❌ ${product.name} 只剩 ${product.stock} 件`);
+                return;
+            }
+
+            // 更新数量
+            item.qty = newQty;
+            pendingOrder.total = pendingOrder.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+            // 同步更新购物车
+            const cartId = item.id;
+            if (cart[cartId] !== undefined) {
+                cart[cartId] = newQty;
+                if (cart[cartId] <= 0) delete cart[cartId];
+            }
+
+            updateCart();
+            renderOrderModal();
+        }
+
+        // ================================================================
+        //  删除整个商品
+        // ================================================================
+        function deleteOrderItem(index) {
+            if (!pendingOrder) return;
+
+            const item = pendingOrder.items[index];
+            if (!item) return;
+
+            // 从购物车移除
+            const cartId = item.id;
+            if (cart[cartId]) {
+                delete cart[cartId];
+            }
+
+            // 从 pendingOrder 移除
+            pendingOrder.items.splice(index, 1);
+            pendingOrder.total = pendingOrder.items.reduce((sum, i) => sum + i.price * i.qty, 0);
+
+            updateCart();
+
+            if (pendingOrder.items.length === 0) {
+                orderModal.classList.remove('active');
+                pendingOrder = null;
+                return;
+            }
+
+            renderOrderModal();
+        }
+
+        // ================================================================
+        //  确认订单（写入 Supabase）
+        // ================================================================
+        async function confirmOrder() {
+            if (!pendingOrder || pendingOrder.items.length === 0) {
+                alert('订单为空');
+                return;
+            }
+
+            // 再次检查库存
+            let errors = [];
+            for (const item of pendingOrder.items) {
+                const product = menu.find(p => p.id === item.id);
+                if (product && product.stock < item.qty) {
+                    errors.push(`${product.name}（需要 ${item.qty}，剩 ${product.stock}）`);
+                }
+            }
+
+            if (errors.length > 0) {
+                alert(`❌ 库存不足！\n\n${errors.join('\n')}`);
+                return;
+            }
+
+            try {
+                // 1. 扣减库存
+                for (const item of pendingOrder.items) {
+                    const product = menu.find(p => p.id === item.id);
+                    if (product) {
+                        const newStock = Math.max(0, product.stock - item.qty);
+                        await sbClient
+                            .from('products')
+                            .update({ stock: newStock })
+                            .eq('id', item.id);
+                        product.stock = newStock;
+                    }
+                }
+
+                // 2. 保存订单到 Supabase（商家后台就能看到）
+                const { error } = await sbClient
+                    .from('orders')
+                    .insert({
+                        nickname: pendingOrder.nickname,
+                        items: pendingOrder.items,
+                        total: pendingOrder.total,
+                        status: 'pending'
+                    });
+
+                if (error) throw error;
+
+                alert(`✅ 订单已提交！\n👤 ${pendingOrder.nickname}\n📦 ${pendingOrder.items.reduce((s, i) => s + i.qty, 0)} 件`);
+
+                // 清空
+                cart = {};
+                pendingOrder = null;
+                updateCart();
+                renderMenu();
+                orderModal.classList.remove('active');
+
+            } catch (err) {
+                alert('❌ 订单提交失败: ' + err.message);
+                console.error('提交失败:', err);
+            }
+        }
+
+        // ================================================================
+        //  事件绑定
+        // ================================================================
+        document.getElementById('checkoutBtn').addEventListener('click', openOrderModal);
+        document.getElementById('clearCartBtn').addEventListener('click', clearCart);
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            orderModal.classList.remove('active');
+        });
+        document.getElementById('confirmOrderBtn').addEventListener('click', confirmOrder);
+        orderModal.addEventListener('click', (e) => {
+            if (e.target === orderModal) orderModal.classList.remove('active');
+        });
+
+        // ================================================================
+        //  启动
+        // ================================================================
+        loadProducts();
+        console.log('✅ 点单页面加载完成');
+    </script>
+</body>
+</html>
